@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} Home {% endblock title %}
+{% block title %} Home|{{request.user}}{% endblock title %}
 
 {% block body %}
 <div class="container mx-auto my-4">

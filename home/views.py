@@ -1,14 +1,19 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
 from datetime import datetime
 from home.models import Contact
 from django.contrib import messages
+from django.contrib.auth.models import AnonymousUser, User
+import django.contrib.auth.backends
+from django.contrib.auth import authenticate, login, logout
 # Create your views here.
 
 
 def index(request):
-    return render(request, 'index.html')
-
-# return HttpResponse("This is SamNet HomePage")
+    print(request.user, " ", request.user.is_anonymous)
+    if request.user.is_anonymous:
+        return redirect('/login')
+    else:
+        return render(request, 'index.html')
 
 
 def about(request):
@@ -31,3 +36,28 @@ def contacts(request):
         messages.success(request, 'Your Message has been sent !')
 
     return render(request, 'contacts.html')
+
+
+def logIn(request):
+    if request.method == "POST":
+        user = authenticate(request, username=request.POST.get(
+            'uname'), password=request.POST.get('pass'))
+
+        if user is not None:
+            login(request, user)
+            # Redirect to a success page.
+            messages.success(request, 'Successfully Logged In !')
+            return redirect('/')
+        else:
+            # Return an 'invalid login' error message.
+            print("Not Able to authenticate")
+            messages.warning(request, 'Invalid Login Credentials !')
+            return render(request, 'login.html')
+
+    return render(request, 'login.html')
+
+
+def logoff(request):
+    logout(request)
+    messages.success(request, 'Visit Again')
+    return render(request, 'logoff.html')
